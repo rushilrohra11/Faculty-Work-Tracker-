@@ -1,6 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { trigger, state, style, transition, animate, query, stagger } from '@angular/animations';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { 
+  faCalendarAlt,
+  faClock, 
+  faEdit, 
+  faTrashAlt, 
+  faCheckCircle, 
+  faTimesCircle,
+  faSort,
+  faSortAlphaDown,
+  faSortNumericDown,
+  faPlusCircle as faAdd,
+  faExclamationCircle,
+  faTimes
+} from '@fortawesome/free-solid-svg-icons';
 
 interface Task {
   id: string;
@@ -22,7 +37,7 @@ interface Task {
     trigger('taskAnimation', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateX(50px)' }),
-        animate('0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)', 
+        animate('0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)', 
           style({ opacity: 1, transform: 'translateX(0)' }))
       ]),
       transition(':leave', [
@@ -55,11 +70,29 @@ interface Task {
         style({ transform: 'scale(0.8) translateY(50px)', opacity: 0 }),
         animate('0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)', 
           style({ transform: 'scale(1) translateY(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)', 
+          style({ transform: 'scale(0.8) translateY(50px)', opacity: 0 }))
       ])
     ])
   ]
 })
 export class TasksComponent implements OnInit {
+  // Font Awesome Icons
+  protected faCalendarAlt = faCalendarAlt;
+  protected faClock = faClock;
+  protected faEdit = faEdit;
+  protected faTrashAlt = faTrashAlt;
+  protected faCheckCircle = faCheckCircle;
+  protected faTimesCircle = faTimesCircle;
+  protected faSort = faSort;
+  protected faSortAlphaDown = faSortAlphaDown;
+  protected faSortNumericDown = faSortNumericDown;
+  protected faAdd = faAdd;
+  protected faExclamationCircle = faExclamationCircle;
+  protected faTimes = faTimes;
+
   taskForm: FormGroup;
   tasks: Task[] = [];
   pendingTasks: Task[] = [];
@@ -70,10 +103,7 @@ export class TasksComponent implements OnInit {
   isSubmitting = false;
   showToast = false;
   toastMessage = '';
-  showDeleteModal = false;
-  taskToDelete: number | null = null;
-
-  private readonly STORAGE_KEY = 'modern_tasks';
+  private readonly STORAGE_KEY = 'tasks_data';
 
   constructor(private fb: FormBuilder) {
     this.taskForm = this.createForm();
@@ -283,24 +313,17 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  deleteTask(index: number): void {
-    this.taskToDelete = index;
-    this.showDeleteModal = true;
-  }
+  deleteTask(task: Task): void {
+    const confirmDelete = window.confirm(`Are you sure you want to delete "${task.title}"?`);
+    if (!confirmDelete) return;
 
-  confirmDelete(): void {
-    if (this.taskToDelete !== null && this.taskToDelete >= 0 && this.taskToDelete < this.tasks.length) {
-      this.tasks.splice(this.taskToDelete, 1);
+    const taskIndex = this.tasks.findIndex(t => t.id === task.id);
+    if (taskIndex !== -1) {
+      this.tasks.splice(taskIndex, 1);
       this.saveTasks();
       this.updateFilteredTasks();
       this.showSuccessToast('Task deleted successfully!');
     }
-    this.cancelDelete();
-  }
-
-  cancelDelete(): void {
-    this.showDeleteModal = false;
-    this.taskToDelete = null;
   }
 
   // Filtering and Sorting
@@ -457,11 +480,6 @@ export class TasksComponent implements OnInit {
       if (this.taskForm.valid && !this.isSubmitting) {
         this.onSubmit();
       }
-    }
-    
-    // Escape to close modal
-    if (event.key === 'Escape' && this.showDeleteModal) {
-      this.cancelDelete();
     }
   }
 }

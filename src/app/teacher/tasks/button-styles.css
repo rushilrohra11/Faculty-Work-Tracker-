@@ -1,0 +1,75 @@
+.submit-btn {
+  width: 100%;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, var(--dark-slate-gray), var(--french-gray-dark));
+  border: none;
+  border-radius: 16px;
+  color: var(--white);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.submit-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px var(--shadow-medium);
+}
+
+.submit-btn:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: 0 5px 10px var(--shadow-light);
+}
+
+.submit-btn:disabled {
+  background: var(--french-gray-light);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.submit-btn.loading {
+  background: var(--french-gray-dark);
+  cursor: wait;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.3s ease;
+}
+
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.fa-spin {
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TasksComponent } from './tasks/tasks.component';
 
 @NgModule({
@@ -12,7 +12,7 @@ import { TasksComponent } from './tasks/tasks.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule
+    FontAwesomeModule
   ],
   exports: [
     TasksComponent
