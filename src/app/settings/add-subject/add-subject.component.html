@@ -1,0 +1,14 @@
+<div *ngFor="let subject of subjects" class="subject-item mb-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <span>{{ subject.subjectName }} - ${{ subject.payPerHour }}/hour</span>
+    <button class="btn btn-danger btn-sm" (click)="removeSubject(subject)">Remove</button>
+  </div>
+</div>
+
+
+<button>Add Subjects</button>
+<input type="text" placeholder="Subject Name" formControlName="subjectName" class="form-control mb-3">
+<input type="number" placeholder="PayPer Hour" formControlName="payPerHour" class="form-control mb-3">
+<button type="submit" class="btn btn-primary w-100" [disabled]="addSubjectForm.invalid" (click)="onAddSubject()">
+  <i class="bi bi-plus-circle-fill"></i> Add Subject
+</button>
