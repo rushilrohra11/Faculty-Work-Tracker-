@@ -79,6 +79,16 @@ export class DatabaseService {
     return [...this.users]; // return a copy to avoid mutation
   }
 
+  /** Get teachers from internal state */
+  getTeachers(): Teacher[] {
+    try {
+      return [...this.teachers]; // return a copy to avoid mutation
+    } catch (error) {
+      console.error('Error getting teachers:', error);
+      return [];
+    }
+  }
+
   /** Clear all users */
   clearUsers(): void {
     this.users = [];
@@ -297,25 +307,23 @@ export class DatabaseService {
       if (existingTeacher) {
         throw new Error('Teacher with this email already exists');
       }
-
+      
       // Check if teacher ID already exists
       const existingId = this.teachers.find(t => t.id === teacher.id);
       if (existingId) {
         throw new Error('Teacher ID already exists');
       }
 
+      // Add teacher to array
       this.teachers.push(teacher);
+      
+      // Update localStorage
       this.updateTeachersLocalStorage();
       console.log('Teacher added successfully:', teacher.name);
     } catch (error) {
       console.error('Error adding teacher:', error);
       throw error;
     }
-  }
-
-  /** Get all teachers */
-  getTeachers(): Teacher[] {
-    return [...this.teachers]; // return a copy to avoid mutation
   }
 
   /** Get teacher by ID */

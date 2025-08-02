@@ -9,16 +9,26 @@ import { AddTeacherComponent } from './profile-settings/add-teacher/add-teacher.
 import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component'; 
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'addSubject', component: AddSubjectComponent },
-  { path: 'addTeacher', component: AddTeacherComponent },
-
-  { path: 'teacher-login', component: TeacherLoginComponent }, // ✅ NEW ROUTE
-
+  {
+    path: 'login',
+    component: LoginComponent
+  },
+  {
+    path: 'register',
+    component: RegisterComponent
+  },
+  {
+    path: 'addSubject',
+    component: AddSubjectComponent
+  },
+  {
+    path: 'addTeacher',
+    component: AddTeacherComponent
+  },
   { path: '', redirectTo: '/tasks', pathMatch: 'full' },
   { path: 'tasks', component: TasksComponent },
   { path: '**', redirectTo: '/tasks' }
+ 
 ];
 
 @NgModule({
