@@ -1,0 +1,171 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="bi bi-book-fill"></i> Subject Management
+          </h4>
+        </div>
+        <div class="card-body">
+          
+          <!-- Header with Add New Subject Button -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0">All Subjects ({{ subjects.length }})</h5>
+            <button 
+              type="button" 
+              class="btn btn-success"
+              (click)="toggleAddForm()">
+              <i class="bi bi-plus-circle-fill"></i> 
+              {{ showAddForm ? 'Cancel' : 'Add New Subject' }}
+            </button>
+          </div>
+
+          <!-- Display existing subjects -->
+          <div class="subjects-list mb-4">
+            <div *ngIf="subjects.length === 0" class="text-center text-muted py-4">
+              <i class="bi bi-inbox display-4 d-block mb-2"></i>
+              <p>No subjects added yet. Click "Add New Subject" to get started.</p>
+            </div>
+
+            <div *ngFor="let subject of subjects; let i = index" class="subject-item mb-3">
+              <div class="card border-left-primary">
+                <div class="card-body py-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="subject-info">
+                      <h6 class="mb-1 text-primary">
+                        <i class="bi bi-book"></i> {{ subject.subjectName }}
+                      </h6>
+                      <small class="text-muted">
+                        <i class="bi bi-currency-dollar"></i> {{ subject.payPerHour }}/hour
+                      </small>
+                    </div>
+                    <div class="subject-actions">
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="deleteSubject(subject)"
+                        title="Delete Subject">
+                        <i class="bi bi-trash-fill"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Subject Form (Hidden by default) -->
+          <div *ngIf="showAddForm" class="add-subject-form">
+            <div class="card bg-light">
+              <div class="card-header">
+                <h6 class="mb-0">
+                  <i class="bi bi-plus-circle"></i> Add New Subject
+                </h6>
+              </div>
+              <div class="card-body">
+                <form [formGroup]="addSubjectForm" (ngSubmit)="onAddSubject()">
+                  
+                  <!-- Subject Name Input -->
+                  <div class="mb-3">
+                    <label for="subjectName" class="form-label">
+                      <i class="bi bi-book"></i> Subject Name *
+                    </label>
+                    <input 
+                      id="subjectName"
+                      type="text"
+                      placeholder="Enter subject name (e.g., Mathematics, Physics)"
+                      formControlName="subjectName"
+                      class="form-control"
+                      [class.is-invalid]="addSubjectForm.get('subjectName')?.invalid && addSubjectForm.get('subjectName')?.touched">
+                    
+                    <!-- Validation error for subject name -->
+                    <div *ngIf="addSubjectForm.get('subjectName')?.invalid && addSubjectForm.get('subjectName')?.touched"
+                         class="invalid-feedback">
+                      <div *ngIf="addSubjectForm.get('subjectName')?.errors?.['required']">
+                        Subject name is required
+                      </div>
+                      <div *ngIf="addSubjectForm.get('subjectName')?.errors?.['minlength']">
+                        Subject name must be at least 2 characters long
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Pay Per Hour Input -->
+                  <div class="mb-3">
+                    <label for="payPerHour" class="form-label">
+                      <i class="bi bi-currency-dollar"></i> Pay Per Hour *
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input 
+                        id="payPerHour"
+                        type="number"
+                        placeholder="0"
+                        formControlName="payPerHour"
+                        class="form-control"
+                        min="1"
+                        step="0.01"
+                        [class.is-invalid]="addSubjectForm.get('payPerHour')?.invalid && addSubjectForm.get('payPerHour')?.touched">
+                      <span class="input-group-text">/hour</span>
+                    </div>
+                    
+                    <!-- Validation error for pay per hour -->
+                    <div *ngIf="addSubjectForm.get('payPerHour')?.invalid && addSubjectForm.get('payPerHour')?.touched"
+                         class="invalid-feedback">
+                      <div *ngIf="addSubjectForm.get('payPerHour')?.errors?.['required']">
+                        Pay per hour is required
+                      </div>
+                      <div *ngIf="addSubjectForm.get('payPerHour')?.errors?.['min']">
+                        Pay per hour must be at least $1
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Form Action Buttons -->
+                  <div class="d-flex gap-2">
+                    <button 
+                      type="submit"
+                      class="btn btn-primary flex-fill"
+                      [disabled]="addSubjectForm.invalid">
+                      <i class="bi bi-check-circle-fill"></i> Add Subject
+                    </button>
+                    
+                    <button 
+                      type="button"
+                      class="btn btn-secondary"
+                      (click)="cancelAddForm()">
+                      <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Debug Info (Remove this in production) -->
+          <div *ngIf="true" class="alert alert-info mt-3">
+            <h6><i class="bi bi-info-circle-fill"></i> Debug Info:</h6>
+            <small>
+              <strong>Admin Status:</strong> {{ adminStatus.isAdmin ? 'Yes' : 'No' }}<br>
+              <strong>Email:</strong> {{ adminStatus.email }}<br>
+              <strong>isLoggedInAdmin:</strong> {{ isLoggedInAdmin ? 'Yes' : 'No' }}<br>
+            </small>
+          </div>
+
+          <!-- Success/Error Messages -->
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-3">
+            <i class="bi bi-check-circle-fill"></i> {{ successMessage }}
+            <button type="button" class="btn-close" (click)="clearMessage()"></button>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mt-3">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="clearMessage()"></button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
