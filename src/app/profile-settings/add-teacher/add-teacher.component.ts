@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subject } from 'src/app/interfaces/subject.interface';
 import { Teacher } from 'src/app/interfaces/teacher.interface';
+
 @Component({
   selector: 'app-add-teacher',
   templateUrl: './add-teacher.component.html',
@@ -16,6 +17,7 @@ export class AddTeacherComponent implements OnInit {
   selectedSubjects: Subject[] = [];
   showCredentials: boolean = false;
   lastGeneratedCredentials: { teacherId: string, password: string } | null = null;
+  isLoading: boolean = false;
   
   constructor(
     private database: DatabaseService,
@@ -24,8 +26,8 @@ export class AddTeacherComponent implements OnInit {
   
   ngOnInit(): void {
     this.initializeForm();
-    this.loadAvailableSubjects();
-    this.loadTeachers();
+    this.loadData();
+    console.log(this.isLoggedInAdmin)
   }
   
   initializeForm(): void {
@@ -35,25 +37,45 @@ export class AddTeacherComponent implements OnInit {
       phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       address: ['', [Validators.required]]
     });
+
+    // Debug logging for form validation
+    this.addTeacherForm.statusChanges.subscribe(status => {
+      console.log('Form Status:', status);
+      console.log('Form Valid:', this.addTeacherForm.valid);
+      console.log('Form Errors:', this.addTeacherForm.errors);
+      console.log('Form Values:', this.addTeacherForm.value);
+      console.log('Selected Subjects:', this.selectedSubjects.length);
+    });
   }
   
-  loadAvailableSubjects(): void {
-    this.availableSubjects = this.database.loadSubjectsForAdmin();
-  }
-  
-  loadTeachers(): void {
-    this.teachers = this.database.getTeachers() || [];
+  loadData(): void {
+    this.isLoading = true;
+    try {
+      this.availableSubjects = this.database.loadSubjectsForAdmin();
+      this.teachers = this.database.getTeachers() || [];
+    } catch (error) {
+      this.showNotification('Failed to load data. Please try again.', 'error');
+      console.error('Error loading data:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
   
   get isLoggedInAdmin(): boolean {
-    return this.database.isloggedInAdmin;
+    // Check both database admin status and localStorage
+    const isAdmin = this.database.isloggedInAdmin;
+    const isLoggedInUser = localStorage.getItem('isLoggedInUser') === 'true';
+    console.log('isLoggedInAdmin:', isAdmin);
+    console.log('isLoggedInUser from localStorage:', isLoggedInUser);
+    return isAdmin || isLoggedInUser;
   }
   
   get adminEmail(): string {
-    return this.database.isloggedInAdminEmail;
+    const email = this.database.isloggedInAdminEmail;
+    console.log('adminEmail:', email);
+    return email;
   }
   
-  // Generate unique teacher ID
   generateTeacherId(): string {
     const prefix = 'TCH';
     const timestamp = Date.now().toString().slice(-6);
@@ -61,7 +83,6 @@ export class AddTeacherComponent implements OnInit {
     return `${prefix}${timestamp}${random}`;
   }
   
-  // Generate secure password
   generatePassword(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%';
     let password = '';
@@ -71,85 +92,113 @@ export class AddTeacherComponent implements OnInit {
     return password;
   }
   
-  // Toggle subject selection
   toggleSubject(subject: Subject): void {
     const index = this.selectedSubjects.findIndex(s => s.subjectName === subject.subjectName);
     if (index > -1) {
       this.selectedSubjects.splice(index, 1);
+      console.log(`Removed subject: ${subject.subjectName}. Total subjects: ${this.selectedSubjects.length}`);
     } else {
-      this.selectedSubjects.push(subject);
+      this.selectedSubjects.push({...subject});
+      console.log(`Added subject: ${subject.subjectName}. Total subjects: ${this.selectedSubjects.length}`);
     }
   }
   
-  // Check if subject is selected
   isSubjectSelected(subject: Subject): boolean {
     return this.selectedSubjects.some(s => s.subjectName === subject.subjectName);
   }
   
-  // Remove selected subject
   removeSelectedSubject(subject: Subject): void {
     this.selectedSubjects = this.selectedSubjects.filter(s => s.subjectName !== subject.subjectName);
+    this.showNotification('Subject removed', 'success');
   }
   
   onAddTeacher(): void {
-    if (this.isLoggedInAdmin && this.addTeacherForm.valid && this.selectedSubjects.length > 0) {
-      const formValue = this.addTeacherForm.value;
-      const teacherId = this.generateTeacherId();
-      const password = this.generatePassword();
-      
-      const teacher: Teacher = {
-        id: teacherId,
-        name: formValue.teacherName,
-        email: formValue.email,
-        phone: formValue.phone,
-        address: formValue.address,
-        subjects: [...this.selectedSubjects],
-        password: password,
-        isActive: true,
-        createdBy: this.adminEmail,
-        createdAt: new Date().toISOString(),
-        totalEarnings: 0
-      };
-      
-      // Save teacher to database
+    if (!this.isLoggedInAdmin) {
+      this.showNotification('Only admin can add teachers', 'error');
+      return;
+    }
+    
+    if (this.addTeacherForm.invalid) {
+      this.markFormAsTouched();
+      this.showNotification('Please fill all required fields correctly', 'error');
+      return;
+    }
+    
+    if (this.selectedSubjects.length === 0) {
+      this.showNotification('Please select at least one subject', 'error');
+      return;
+    }
+    
+    const formValue = this.addTeacherForm.value;
+    const teacherId = this.generateTeacherId();
+    const password = this.generatePassword();
+    
+    const teacher: Teacher = {
+      id: teacherId,
+      name: formValue.teacherName.trim(),
+      email: formValue.email.trim(),
+      phone: formValue.phone.trim(),
+      address: formValue.address.trim(),
+      subjects: [...this.selectedSubjects],
+      password: password,
+      isActive: true,
+      createdBy: this.adminEmail,
+      createdAt: new Date().toISOString(),
+      totalEarnings: 0
+    };
+    
+    try {
       this.database.addTeacher(teacher);
-      
-      // Show generated credentials
       this.lastGeneratedCredentials = {
         teacherId: teacherId,
         password: password
       };
       this.showCredentials = true;
       
-      console.log('Teacher added successfully:', teacher.name);
-      
-      // Reset form and selections
       this.addTeacherForm.reset();
       this.selectedSubjects = [];
+      this.loadData();
       
-      // Reload teachers list
-      this.loadTeachers();
-    } else {
-      console.error('Form is invalid, user is not admin, or no subjects selected');
-      if (this.selectedSubjects.length === 0) {
-        alert('Please select at least one subject for the teacher');
-      }
+      this.showNotification('Teacher added successfully!', 'success');
+    } catch (error) {
+      this.showNotification('Failed to add teacher. Please try again.', 'error');
+      console.error('Error adding teacher:', error);
     }
   }
   
   deleteTeacher(teacher: Teacher): void {
-    if (this.isLoggedInAdmin && confirm(`Are you sure you want to delete teacher ${teacher.name}?`)) {
-      this.database.removeTeacher(teacher.id);
-      console.log('Teacher deleted:', teacher.name);
-      this.loadTeachers();
+    if (!this.isLoggedInAdmin) {
+      this.showNotification('Only admin can delete teachers', 'error');
+      return;
+    }
+    
+    if (confirm(`Are you sure you want to permanently delete ${teacher.name}? This action cannot be undone.`)) {
+      try {
+        this.database.removeTeacher(teacher.id);
+        this.loadData();
+        this.showNotification('Teacher deleted successfully', 'success');
+      } catch (error) {
+        this.showNotification('Failed to delete teacher', 'error');
+        console.error('Error deleting teacher:', error);
+      }
     }
   }
   
   toggleTeacherStatus(teacher: Teacher): void {
-    if (this.isLoggedInAdmin) {
-      teacher.isActive = !teacher.isActive;
+    if (!this.isLoggedInAdmin) {
+      this.showNotification('Only admin can modify teacher status', 'error');
+      return;
+    }
+    
+    teacher.isActive = !teacher.isActive;
+    try {
       this.database.updateTeacher(teacher);
-      console.log(`Teacher ${teacher.name} ${teacher.isActive ? 'activated' : 'deactivated'}`);
+      const status = teacher.isActive ? 'activated' : 'deactivated';
+      this.showNotification(`Teacher ${status} successfully`, 'success');
+    } catch (error) {
+      teacher.isActive = !teacher.isActive; // Revert on error
+      this.showNotification('Failed to update teacher status', 'error');
+      console.error('Error updating teacher:', error);
     }
   }
   
@@ -160,9 +209,20 @@ export class AddTeacherComponent implements OnInit {
   
   copyToClipboard(text: string): void {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
+      this.showNotification('Copied to clipboard!', 'success');
     }).catch(err => {
+      this.showNotification('Failed to copy text', 'error');
       console.error('Failed to copy: ', err);
     });
+  }
+  
+  private markFormAsTouched(): void {
+    Object.values(this.addTeacherForm.controls).forEach(control => {
+      control.markAsTouched();
+    });
+  }
+  
+  private showNotification(message: string, type: 'success' | 'error'): void {
+    alert(`${type.toUpperCase()}: ${message}`);
   }
 }

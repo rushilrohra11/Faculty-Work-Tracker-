@@ -1,176 +1,93 @@
-<div class="login-container">
-  
-  <!-- Login Form (when not logged in) -->
-  <div class="row justify-content-center" *ngIf="!isLoggedInAdmin">
-    <div class="col-lg-5 col-md-7 col-sm-9 col-11">
-      <div class="card login-card shadow-lg">
-        <div class="card-header text-center">
-          <h3 class="mb-0">
-            <i class="bi bi-shield-lock"></i>
-            Admin Login
-          </h3>
-          <p class="text-light mb-0">Enter your credentials to access admin panel</p>
+<div class="login-manager">
+  <div class="main-grid">
+    <div class="form-section">
+      <div class="glass-card form-card">
+        <div class="card-header">
+          <h2>
+            <fa-icon [icon]="faUser"></fa-icon>
+            Welcome Back
+          </h2>
+          <div class="header-decoration"></div>
+          <p>Sign in to your account</p>
         </div>
-        
-        <div class="card-body p-4">
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            
-            <!-- Email -->
-            <div class="mb-3">
-              <label for="email" class="form-label">
-                <i class="bi bi-envelope-fill"></i> Email Address
-              </label>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Email -->
+          <div class="form-group" [class.error]="isFieldInvalid('email')">
+            <div class="input-wrapper">
+              <fa-icon [icon]="faEnvelope" class="input-icon"></fa-icon>
               <input 
                 type="email" 
                 id="email"
-                placeholder="Enter your email address" 
                 formControlName="email" 
-                class="form-control"
-                [class.is-invalid]="f['email'].invalid && f['email'].touched">
-              
-              <div *ngIf="f['email'].invalid && f['email'].touched" class="invalid-feedback">
-                <div *ngIf="f['email'].errors?.['required']">
-                  Email is required
-                </div>
-                <div *ngIf="f['email'].errors?.['email']">
-                  Please enter a valid email address
-                </div>
-              </div>
+                placeholder=" "
+                class="form-input">
+              <label for="email" class="form-label">Email Address</label>
+              <div class="input-border"></div>
             </div>
-
-            <!-- Password -->
-            <div class="mb-3">
-              <label for="password" class="form-label">
-                <i class="bi bi-lock-fill"></i> Password
-              </label>
-              <div class="input-group">
-                <input 
-                  [type]="showPassword ? 'text' : 'password'" 
-                  id="password"
-                  placeholder="Enter your password" 
-                  formControlName="password" 
-                  class="form-control"
-                  [class.is-invalid]="f['password'].invalid && f['password'].touched">
-                
-                <button 
-                  type="button" 
-                  class="btn btn-outline-secondary"
-                  (click)="togglePasswordVisibility()">
-                  <i class="bi" 
-                     [class.bi-eye-fill]="!showPassword"
-                     [class.bi-eye-slash-fill]="showPassword"></i>
-                </button>
-              </div>
-              
-              <div *ngIf="f['password'].invalid && f['password'].touched" class="invalid-feedback">
-                <div *ngIf="f['password'].errors?.['required']">
-                  Password is required
-                </div>
-                <div *ngIf="f['password'].errors?.['minlength']">
-                  Password must be at least 6 characters long
-                </div>
-              </div>
+            <div class="error-message" *ngIf="isFieldInvalid('email')">
+              <fa-icon [icon]="faExclamationCircle"></fa-icon>
+              <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+              <span *ngIf="f['email'].errors?.['email']">Please enter a valid email address</span>
             </div>
-
-            <!-- Error Message -->
-            <div *ngIf="loginError" class="alert alert-danger" role="alert">
-              <i class="bi bi-exclamation-triangle-fill"></i>
-              {{ loginError }}
-            </div>
-
-            <!-- Login Button -->
-            <div class="d-grid mb-3">
-              <button 
-                type="submit" 
-                class="btn btn-primary btn-lg"
-                [disabled]="loginForm.invalid || isLoading">
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                <i *ngIf="!isLoading" class="bi bi-box-arrow-in-right me-2"></i>
-                {{ isLoading ? 'Logging in...' : 'Login to Admin Panel' }}
-              </button>
-            </div>
-            
-          </form>
-          
-          <hr class="my-3">
-          
-          <!-- Demo Admin Button -->
-          <div class="text-center">
-            <button 
-              type="button" 
-              class="btn btn-outline-info btn-sm mb-2"
-              (click)="createDemoAdmin()">
-              <i class="bi bi-person-plus"></i>
-              Create Demo Admin
-            </button>
-            <br>
-            <small class="text-muted">
-              <i class="bi bi-info-circle"></i>
-              For testing purposes only
-            </small>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Admin Dashboard Preview (when logged in) -->
-  <div class="admin-welcome" *ngIf="isLoggedInAdmin">
-    <div class="row justify-content-center">
-      <div class="col-lg-8 col-md-10 col-12">
-        <div class="card welcome-card shadow-lg">
-          <div class="card-header text-center">
-            <h2 class="mb-0">
-              <i class="bi bi-shield-check"></i>
-              Welcome, Admin!
-            </h2>
-          </div>
-          
-          <div class="card-body text-center p-5">
-            <div class="admin-info mb-4">
-              <h4 class="text-primary">{{ currentAdminEmail }}</h4>
-              <p class="text-muted">You are successfully logged in as Administrator</p>
-            </div>
-            
-            <div class="admin-actions">
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <div class="action-card">
-                    <i class="bi bi-book-fill action-icon text-primary"></i>
-                    <h6>Manage Subjects</h6>
-                    <p class="text-muted small">Add, edit, or remove subjects</p>
-                  </div>
-                </div>
-                
-                <div class="col-md-4">
-                  <div class="action-card">
-                    <i class="bi bi-people-fill action-icon text-success"></i>
-                    <h6>Manage Teachers</h6>
-                    <p class="text-muted small">Add and manage teacher accounts</p>
-                  </div>
-                </div>
-                
-                <div class="col-md-4">
-                  <div class="action-card">
-                    <i class="bi bi-graph-up action-icon text-info"></i>
-                    <h6>View Reports</h6>
-                    <p class="text-muted small">Monitor system analytics</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="mt-4">
+          <!-- Password -->
+          <div class="form-group" [class.error]="isFieldInvalid('password')">
+            <div class="input-wrapper">
+              <fa-icon [icon]="faLock" class="input-icon"></fa-icon>
+              <input 
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                formControlName="password" 
+                placeholder=" "
+                class="form-input">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-border"></div>
               <button 
                 type="button" 
-                class="btn btn-outline-danger btn-lg"
-                (click)="onLogout()">
-                <i class="bi bi-box-arrow-right"></i>
-                Logout
+                class="toggle-password" 
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                <fa-icon [icon]="showPassword ? faEyeSlash : faEye"></fa-icon>
               </button>
             </div>
+            <div class="error-message" *ngIf="isFieldInvalid('password')">
+              <fa-icon [icon]="faExclamationCircle"></fa-icon>
+              <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+              <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</span>
+            </div>
           </div>
-        </div>
+
+          <!-- Error Message -->
+          <div class="error-message global-error" *ngIf="loginError">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
+            {{ loginError }}
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="btn btn-primary submit-btn" 
+            [class.loading]="isLoading"
+            [disabled]="!loginForm.valid || isLoading">
+            <span class="btn-content" *ngIf="!isLoading">
+              <fa-icon [icon]="faUser"></fa-icon>
+              Sign In
+            </span>
+            <span class="btn-content" *ngIf="isLoading">
+              <fa-icon [icon]="faSpinner" [spin]="true"></fa-icon>
+              Signing in...
+            </span>
+          </button>
+
+          <!-- Register Link -->
+          <div class="form-footer">
+            <p class="register-link">
+              Don't have an account? <a routerLink="/register">Create one now</a>
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   </div>

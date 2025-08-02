@@ -1,0 +1,84 @@
+<div class="login-container">
+  <div class="glass-card">
+    <div class="card-header">
+      <h2>
+        <fa-icon [icon]="faUser"></fa-icon>
+        Welcome Back
+      </h2>
+      <div class="header-decoration"></div>
+      <p>Sign in to your account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Email -->
+      <div class="form-group" [class.error]="f['email'].invalid && f['email'].touched">
+        <div class="input-wrapper">
+          <fa-icon [icon]="faEnvelope" class="input-icon"></fa-icon>
+          <input 
+            type="email" 
+            id="email"
+            placeholder="Email address" 
+            formControlName="email" 
+            class="form-input">
+        </div>
+        <div class="error-message" *ngIf="f['email'].invalid && f['email'].touched">
+          <fa-icon [icon]="faExclamationCircle"></fa-icon>
+          <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+          <span *ngIf="f['email'].errors?.['email']">Please enter a valid email address</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group" [class.error]="f['password'].invalid && f['password'].touched">
+        <div class="input-wrapper">
+          <fa-icon [icon]="faLock" class="input-icon"></fa-icon>
+          <input 
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            placeholder="Password" 
+            formControlName="password" 
+            class="form-input">
+          <button 
+            type="button" 
+            class="toggle-password" 
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <fa-icon [icon]="showPassword ? faEyeSlash : faEye"></fa-icon>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="f['password'].invalid && f['password'].touched">
+          <fa-icon [icon]="faExclamationCircle"></fa-icon>
+          <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+          <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</span>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="loginError">
+        <fa-icon [icon]="faExclamationCircle"></fa-icon>
+        {{ loginError }}
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="submit-btn" 
+        [class.loading]="isLoading"
+        [disabled]="!loginForm.valid || isLoading">
+        <span class="btn-content" *ngIf="!isLoading">
+          <fa-icon [icon]="faUser"></fa-icon>
+          Sign In
+        </span>
+        <span class="btn-content" *ngIf="isLoading">
+          <fa-icon [icon]="faSpinner" [spin]="true"></fa-icon>
+          Signing in...
+        </span>
+      </button>
+
+      <!-- Register Link -->
+      <div class="register-link">
+        Don't have an account? <a routerLink="/register">Create one now</a>
+      </div>
+    </form>
+  </div>
+</div>

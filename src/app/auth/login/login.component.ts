@@ -2,6 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Router } from '@angular/router';
+import { 
+  faUser,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash,
+  faExclamationCircle,
+  faSpinner
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-login',
@@ -9,6 +18,15 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+  // Font Awesome Icons
+  protected faUser = faUser;
+  protected faEnvelope = faEnvelope;
+  protected faLock = faLock;
+  protected faEye = faEye;
+  protected faEyeSlash = faEyeSlash;
+  protected faExclamationCircle = faExclamationCircle;
+  protected faSpinner = faSpinner;
+
   loginForm!: FormGroup;
   loginError: string = '';
   isLoading: boolean = false;
@@ -80,6 +98,7 @@ export class LoginComponent implements OnInit {
         } else {
           // Handle regular user login
           user.isLoggedIn = true;
+          localStorage.setItem('isLoggedInUser', 'true');
           user.lastLoginTime = new Date().toISOString();
           
           // Update the user in the database
@@ -129,6 +148,11 @@ export class LoginComponent implements OnInit {
 
   get currentAdminEmail(): string {
     return this.database.getCurrentAdminEmail();
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.loginForm.get(fieldName);
+    return field ? field.invalid && field.touched : false;
   }
 
   createDemoAdmin(): void {
