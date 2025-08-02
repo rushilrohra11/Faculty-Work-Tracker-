@@ -9,25 +9,25 @@ import { Teacher } from 'src/app/interfaces/teacher.interface';
   styleUrls: ['./add-teacher.component.css']
 })
 export class AddTeacherComponent implements OnInit {
-  
+
   addTeacherForm!: FormGroup;
   teachers: Teacher[] = [];
   availableSubjects: Subject[] = [];
   selectedSubjects: Subject[] = [];
   showCredentials: boolean = false;
   lastGeneratedCredentials: { teacherId: string, password: string } | null = null;
-  
+
   constructor(
     private database: DatabaseService,
     private fb: FormBuilder
-  ) {}
-  
+  ) { }
+
   ngOnInit(): void {
     this.initializeForm();
     this.loadAvailableSubjects();
     this.loadTeachers();
   }
-  
+
   initializeForm(): void {
     this.addTeacherForm = this.fb.group({
       teacherName: ['', [Validators.required, Validators.minLength(2)]],
@@ -36,23 +36,23 @@ export class AddTeacherComponent implements OnInit {
       address: ['', [Validators.required]]
     });
   }
-  
+
   loadAvailableSubjects(): void {
     this.availableSubjects = this.database.loadSubjectsForAdmin();
   }
-  
+
   loadTeachers(): void {
     this.teachers = this.database.getTeachers() || [];
   }
-  
+
   get isLoggedInAdmin(): boolean {
     return this.database.isloggedInAdmin;
   }
-  
+
   get adminEmail(): string {
     return this.database.isloggedInAdminEmail;
   }
-  
+
   // Generate unique teacher ID
   generateTeacherId(): string {
     const prefix = 'TCH';
@@ -60,7 +60,7 @@ export class AddTeacherComponent implements OnInit {
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     return `${prefix}${timestamp}${random}`;
   }
-  
+
   // Generate secure password
   generatePassword(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%';
@@ -70,7 +70,7 @@ export class AddTeacherComponent implements OnInit {
     }
     return password;
   }
-  
+
   // Toggle subject selection
   toggleSubject(subject: Subject): void {
     const index = this.selectedSubjects.findIndex(s => s.subjectName === subject.subjectName);
@@ -80,23 +80,23 @@ export class AddTeacherComponent implements OnInit {
       this.selectedSubjects.push(subject);
     }
   }
-  
+
   // Check if subject is selected
   isSubjectSelected(subject: Subject): boolean {
     return this.selectedSubjects.some(s => s.subjectName === subject.subjectName);
   }
-  
+
   // Remove selected subject
   removeSelectedSubject(subject: Subject): void {
     this.selectedSubjects = this.selectedSubjects.filter(s => s.subjectName !== subject.subjectName);
   }
-  
+
   onAddTeacher(): void {
     if (this.isLoggedInAdmin && this.addTeacherForm.valid && this.selectedSubjects.length > 0) {
       const formValue = this.addTeacherForm.value;
       const teacherId = this.generateTeacherId();
       const password = this.generatePassword();
-      
+
       const teacher: Teacher = {
         id: teacherId,
         name: formValue.teacherName,
@@ -110,23 +110,34 @@ export class AddTeacherComponent implements OnInit {
         createdAt: new Date().toISOString(),
         totalEarnings: 0
       };
-      
+
       // Save teacher to database
-      this.database.addTeacher(teacher);
-      
+      //this.database.addTeacher(teacher);
+      try {
+        this.database.addTeacher(teacher);
+        // ...existing code...
+      } catch (error) {
+        console.error('Failed to add teacher:', error);
+        alert('An error occurred while adding the teacher.');
+      }
+
       // Show generated credentials
       this.lastGeneratedCredentials = {
         teacherId: teacherId,
         password: password
       };
       this.showCredentials = true;
-      
+
+      this.database.addTeacher(teacher);
+
       console.log('Teacher added successfully:', teacher.name);
-      
+
       // Reset form and selections
       this.addTeacherForm.reset();
+      this.addTeacherForm.markAsPristine();
+      this.addTeacherForm.markAsUntouched();
       this.selectedSubjects = [];
-      
+
       // Reload teachers list
       this.loadTeachers();
     } else {
@@ -136,7 +147,7 @@ export class AddTeacherComponent implements OnInit {
       }
     }
   }
-  
+
   deleteTeacher(teacher: Teacher): void {
     if (this.isLoggedInAdmin && confirm(`Are you sure you want to delete teacher ${teacher.name}?`)) {
       this.database.removeTeacher(teacher.id);
@@ -144,7 +155,7 @@ export class AddTeacherComponent implements OnInit {
       this.loadTeachers();
     }
   }
-  
+
   toggleTeacherStatus(teacher: Teacher): void {
     if (this.isLoggedInAdmin) {
       teacher.isActive = !teacher.isActive;
@@ -152,12 +163,12 @@ export class AddTeacherComponent implements OnInit {
       console.log(`Teacher ${teacher.name} ${teacher.isActive ? 'activated' : 'deactivated'}`);
     }
   }
-  
+
   closeCredentialsModal(): void {
     this.showCredentials = false;
     this.lastGeneratedCredentials = null;
   }
-  
+
   copyToClipboard(text: string): void {
     navigator.clipboard.writeText(text).then(() => {
       alert('Copied to clipboard!');
