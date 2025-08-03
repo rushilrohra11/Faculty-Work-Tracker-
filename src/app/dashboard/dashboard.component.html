@@ -1,1 +1,13 @@
-<p>dashboard works!</p>
+<div *ngIf="!selectedTeacher">
+  <h2>Teachers</h2>
+  <ul>
+    <li *ngFor="let teacher of teachers" (click)="selectTeacher(teacher)">
+      {{ teacher.name }} ({{ teacher.email }})
+    </li>
+  </ul>
+</div>
+
+<div *ngIf="selectedTeacher">
+  <button (click)="clearSelection()">Back to Teachers</button>
+  <app-teacher-weekly-summary [teacher]="selectedTeacher"></app-teacher-weekly-summary>
+</div>

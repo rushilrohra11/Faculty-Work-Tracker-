@@ -144,7 +144,8 @@ export class AddTeacherComponent implements OnInit {
       isActive: true,
       createdBy: this.adminEmail,
       createdAt: new Date().toISOString(),
-      totalEarnings: 0
+      totalEarnings: 0,
+      isloggedInTeacher: false,
     };
     
     try {

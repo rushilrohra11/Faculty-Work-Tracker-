@@ -16,6 +16,7 @@ import {
   faExclamationCircle,
   faTimes
 } from '@fortawesome/free-solid-svg-icons';
+import { DatabaseService } from 'src/app/services/database.service';
 
 interface Task {
   id: string;
@@ -105,9 +106,13 @@ export class TasksComponent implements OnInit {
   toastMessage = '';
   private readonly STORAGE_KEY = 'tasks_data';
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private database: DatabaseService // Inject the service
+  ) {
     this.taskForm = this.createForm();
   }
+
 
   ngOnInit(): void {
     this.loadTasks();
@@ -239,13 +244,12 @@ export class TasksComponent implements OnInit {
     this.isSubmitting = true;
 
     try {
-      // Simulate API call delay
       await this.delay(800);
 
       const formValue = this.taskForm.value;
       const date = new Date(formValue.date);
       const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      
+
       const newTask: Task = {
         id: this.generateId(),
         title: formValue.title.trim(),
@@ -257,12 +261,16 @@ export class TasksComponent implements OnInit {
         completed: false,
         createdAt: new Date()
       };
-      
-      this.tasks.unshift(newTask);
-      this.saveTasks();
+
+      const email = this.database.getLoggedInTeacherEmail();
+      if (email) {
+        this.database.addTaskForTeacher(email, newTask);
+        this.tasks = this.database.getTasksForTeacher(email);
+      }
+
       this.updateFilteredTasks();
       this.taskForm.reset();
-      
+
       this.showSuccessToast('Task created successfully!');
     } catch (error) {
       this.showSuccessToast('Error creating task. Please try again.');
@@ -284,9 +292,11 @@ export class TasksComponent implements OnInit {
   toggleTask(index: number): void {
     if (index >= 0 && index < this.tasks.length) {
       this.tasks[index].completed = !this.tasks[index].completed;
-      this.saveTasks();
+      const email = this.database.getLoggedInTeacherEmail();
+      if (email) {
+        this.database.updateTaskForTeacher(email, this.tasks[index]);
+      }
       this.updateFilteredTasks();
-      
       const status = this.tasks[index].completed ? 'completed' : 'reopened';
       this.showSuccessToast(`Task ${status}!`);
     }
@@ -302,28 +312,30 @@ export class TasksComponent implements OnInit {
         startTime: task.startTime,
         endTime: task.endTime
       });
-      
+
       // Remove the task being edited to avoid duplicate validation
-      this.tasks.splice(index, 1);
-      this.saveTasks();
+      const email = this.database.getLoggedInTeacherEmail();
+      if (email) {
+        this.database.removeTaskForTeacher(email, task.id);
+        this.tasks = this.database.getTasksForTeacher(email);
+      }
       this.updateFilteredTasks();
-      
-      // Scroll to form
       document.querySelector('.form-card')?.scrollIntoView({ behavior: 'smooth' });
     }
   }
+
 
   deleteTask(task: Task): void {
     const confirmDelete = window.confirm(`Are you sure you want to delete "${task.title}"?`);
     if (!confirmDelete) return;
 
-    const taskIndex = this.tasks.findIndex(t => t.id === task.id);
-    if (taskIndex !== -1) {
-      this.tasks.splice(taskIndex, 1);
-      this.saveTasks();
-      this.updateFilteredTasks();
-      this.showSuccessToast('Task deleted successfully!');
+    const email = this.database.getLoggedInTeacherEmail();
+    if (email) {
+      this.database.removeTaskForTeacher(email, task.id);
+      this.tasks = this.database.getTasksForTeacher(email);
     }
+    this.updateFilteredTasks();
+    this.showSuccessToast('Task deleted successfully!');
   }
 
   // Filtering and Sorting
@@ -430,15 +442,16 @@ export class TasksComponent implements OnInit {
   }
 
   // Storage Methods
-  private loadTasks(): void {
+ private loadTasks(): void {
     try {
-      const saved = localStorage.getItem(this.STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        this.tasks = parsed.map((task: any) => ({
+      const email = this.database.getLoggedInTeacherEmail();
+      if (email) {
+        this.tasks = this.database.getTasksForTeacher(email).map((task: any) => ({
           ...task,
           createdAt: new Date(task.createdAt)
         }));
+      } else {
+        this.tasks = [];
       }
     } catch (error) {
       console.error('Error loading tasks:', error);
@@ -446,13 +459,12 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  private saveTasks(): void {
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.tasks));
-    } catch (error) {
-      console.error('Error saving tasks:', error);
-    }
-  }
+  // ...existing code...
+
+
+
+// In your onSubmit(), just push to this.tasks and call saveTasks() as you do now.
+// ...existing code...
 
   // Utility Methods
   private generateId(): string {

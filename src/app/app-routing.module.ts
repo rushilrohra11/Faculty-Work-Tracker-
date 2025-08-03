@@ -7,6 +7,8 @@ import { RegisterComponent } from './auth/register/register.component';
 import { AddSubjectComponent } from './profile-settings/add-subject/add-subject.component';
 import { AddTeacherComponent } from './profile-settings/add-teacher/add-teacher.component';
 import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component'; 
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-weekly-summary.component';
 
 const routes: Routes = [
   {
@@ -25,7 +27,18 @@ const routes: Routes = [
     path: 'addTeacher',
     component: AddTeacherComponent
   },
-  { path: '', redirectTo: '/tasks', pathMatch: 'full' },
+  {
+    path: 'teacher-login',
+    component: TeacherLoginComponent
+  },
+  {
+    path: 'dashboard',
+    component: DashboardComponent
+  },
+  {
+    path: 'teacher-weekly-summary',
+    component: TeacherWeeklySummaryComponent
+  },
   { path: 'tasks', component: TasksComponent },
   { path: '**', redirectTo: '/tasks' }
  

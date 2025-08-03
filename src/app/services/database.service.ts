@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from '../interfaces/subject.interface';
 import { Teacher } from '../interfaces/teacher.interface';
+import { Task } from '../interfaces/task.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,14 +17,19 @@ export class DatabaseService {
   isloggedInAdmin: boolean = false;
   isloggedInAdminEmail: string = '';
 
+  isloggedInTeacher: any = false;
+  isloggedInTeacheremail: string = '';
+
   subjects: Subject[] = [];
 
   constructor() {
     this.loadUsersFromStorage();
     this.loadTeachersFromStorage();
-    this.restoreAdminLoginState(); // Restore admin login state on service initialization
+    this.restoreAdminLoginState();
+     // Restore admin login state on service initialization
   }
 
+  
   /** Load users from localStorage at startup */
   private loadUsersFromStorage(): void {
     const data = localStorage.getItem(this.USERS_KEY);
@@ -34,6 +40,7 @@ export class DatabaseService {
   private loadTeachersFromStorage(): void {
     const data = localStorage.getItem(this.TEACHERS_KEY);
     this.teachers = data ? JSON.parse(data) : [];
+    
   }
 
   /** Save the current user list to localStorage */
@@ -50,6 +57,47 @@ export class DatabaseService {
   private updateSubjectsLocalStorage(): void {
     localStorage.setItem(this.SUBJECTS_KEY, JSON.stringify(this.subjects));
   }
+
+  // ...existing code...
+
+/** Get tasks for a specific teacher */
+getTasksForTeacher(email: string): Task[] {
+  const teacher = this.teachers.find(t => t.email === email);
+  return teacher && teacher.tasks ? [...teacher.tasks] : [];
+}
+
+/** Add a task for a specific teacher */
+addTaskForTeacher(email: string, task: Task): void {
+  const teacher = this.teachers.find(t => t.email === email);
+  if (teacher) {
+    if (!teacher.tasks) teacher.tasks = [];
+    teacher.tasks.push(task);
+    this.updateTeachersLocalStorage();
+  }
+}
+
+/** Remove a task for a specific teacher */
+removeTaskForTeacher(email: string, taskId: string): void {
+  const teacher = this.teachers.find(t => t.email === email);
+  if (teacher && teacher.tasks) {
+    teacher.tasks = teacher.tasks.filter(task => task.id !== taskId);
+    this.updateTeachersLocalStorage();
+  }
+}
+
+/** Update a task for a specific teacher */
+updateTaskForTeacher(email: string, updatedTask: Task): void {
+  const teacher = this.teachers.find(t => t.email === email);
+  if (teacher && teacher.tasks) {
+    const idx = teacher.tasks.findIndex(task => task.id === updatedTask.id);
+    if (idx !== -1) {
+      teacher.tasks[idx] = updatedTask;
+      this.updateTeachersLocalStorage();
+    }
+  }
+}
+
+  
 
   loadData(): void {
     this.users = JSON.parse(localStorage.getItem(this.USERS_KEY) || '[]');
@@ -94,6 +142,10 @@ export class DatabaseService {
     this.users = [];
     this.updateLocalStorage();
     console.log('All users cleared');
+  }
+
+  getLoggedInTeacherEmail(): string | null {
+    return this.isloggedInTeacheremail || null;
   }
 
 
@@ -302,22 +354,9 @@ export class DatabaseService {
   /** Add new teacher and persist it */
   addTeacher(teacher: Teacher): void {
     try {
-      // Check if teacher with same email already exists
-      const existingTeacher = this.teachers.find(t => t.email === teacher.email);
-      if (existingTeacher) {
-        throw new Error('Teacher with this email already exists');
-      }
-      
-      // Check if teacher ID already exists
-      const existingId = this.teachers.find(t => t.id === teacher.id);
-      if (existingId) {
-        throw new Error('Teacher ID already exists');
-      }
-
-      // Add teacher to array
+      // ...existing checks...
+      teacher.tasks = []; // Initialize tasks array
       this.teachers.push(teacher);
-      
-      // Update localStorage
       this.updateTeachersLocalStorage();
       console.log('Teacher added successfully:', teacher.name);
     } catch (error) {
@@ -398,6 +437,12 @@ export class DatabaseService {
       return [];
     }
   }
+
+
+/** Save all teachers' tasks to localStorage */
+
+
+/** Get tasks for a specific teacher */
 
   /** Update teacher's last login */
   updateTeacherLastLogin(teacherId: string): void {
@@ -679,5 +724,6 @@ verifySubjectAddition(email: string, subject: Subject): boolean {
     return false;
   }
 }
+
   
 }

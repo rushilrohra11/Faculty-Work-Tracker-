@@ -1,0 +1,8 @@
+<h3>Weekly Summary for {{ teacher.name }}</h3>
+<ul>
+  <li *ngFor="let task of weeklyTasks">
+    <b>{{ task.day }}:</b> {{ task.title }} ({{ task.startTime }} - {{ task.endTime }})
+  </li>
+</ul>
+<p><b>Total Hours:</b> {{ totalHours | number:'1.2-2' }}</p>
+<p><b>Estimated Salary:</b> ₹{{ totalSalary | number:'1.2-2' }}</p>
