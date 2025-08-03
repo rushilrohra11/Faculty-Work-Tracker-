@@ -15,6 +15,7 @@ import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.compon
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-weekly-summary.component';
 import { SharedModule } from './shared/shared.module';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { SharedModule } from './shared/shared.module';
     AddSubjectComponent,
     TeacherLoginComponent,
     DashboardComponent,
-    TeacherWeeklySummaryComponent
+    TeacherWeeklySummaryComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
