@@ -16,7 +16,7 @@ export class NavbarComponent {
   ngOnInit() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
+    ).subscribe((event: any) => {
       this.currentRoute = event.url;
       this.isMenuOpen = false;
     });

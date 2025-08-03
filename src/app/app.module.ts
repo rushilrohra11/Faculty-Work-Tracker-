@@ -14,6 +14,7 @@ import { AddSubjectComponent } from './profile-settings/add-subject/add-subject.
 import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-weekly-summary.component';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-
     ReactiveFormsModule,
     AuthModule,
     NgbModule,
-    ProfileSettingsModule
+    ProfileSettingsModule,
+    SharedModule
     
   ],
   providers: [],
