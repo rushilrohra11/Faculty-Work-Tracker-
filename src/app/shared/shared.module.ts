@@ -15,6 +15,10 @@ import { NavbarComponent } from './navbar/navbar.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule
+  ],
+  exports:[
+    FooterComponent,
+    NavbarComponent,
   ]
 })
 export class SharedModule { }

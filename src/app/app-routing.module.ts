@@ -6,29 +6,26 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { AddSubjectComponent } from './profile-settings/add-subject/add-subject.component';
 import { AddTeacherComponent } from './profile-settings/add-teacher/add-teacher.component';
-import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component'; 
+import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component';
 
 const routes: Routes = [
-  {
-    path: 'login',
-    component: LoginComponent
-  },
-  {
-    path: 'register',
-    component: RegisterComponent
-  },
-  {
-    path: 'addSubject',
-    component: AddSubjectComponent
-  },
-  {
-    path: 'addTeacher',
-    component: AddTeacherComponent
-  },
+  // Default route - redirect to tasks
   { path: '', redirectTo: '/tasks', pathMatch: 'full' },
+  
+  // Main application routes
   { path: 'tasks', component: TasksComponent },
+  
+  // Authentication routes
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'teacher-login', component: TeacherLoginComponent },
+  
+  // Profile settings routes
+  { path: 'addSubject', component: AddSubjectComponent },
+  { path: 'addTeacher', component: AddTeacherComponent },
+  
+  // Wildcard route - must be last
   { path: '**', redirectTo: '/tasks' }
- 
 ];
 
 @NgModule({

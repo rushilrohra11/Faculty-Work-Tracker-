@@ -13,6 +13,7 @@ import { AddTeacherComponent } from './profile-settings/add-teacher/add-teacher.
 import { AddSubjectComponent } from './profile-settings/add-subject/add-subject.component';
 import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     ReactiveFormsModule,
     AuthModule,
     NgbModule,
-    ProfileSettingsModule
+    ProfileSettingsModule,
+    SharedModule
     
   ],
   providers: [],
