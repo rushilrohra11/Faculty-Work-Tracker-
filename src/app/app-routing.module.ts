@@ -12,7 +12,7 @@ import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-
 
 const routes: Routes = [
   // Default route - redirect to tasks
-  { path: '', redirectTo: '/tasks', pathMatch: 'full' },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   
   // Main application routes
   {

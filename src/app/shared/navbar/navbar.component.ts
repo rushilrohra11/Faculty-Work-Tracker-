@@ -13,16 +13,5 @@ export class NavbarComponent {
 
   constructor(private router: Router) {}
 
-  ngOnInit() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      this.currentRoute = event.url;
-      this.isMenuOpen = false;
-    });
-  }
-
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
+  
 }
