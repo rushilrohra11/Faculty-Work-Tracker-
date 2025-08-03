@@ -145,129 +145,67 @@
       </div>
     </div>
 
-    <!-- Tasks List Section -->
+    <!-- Task List Section -->
     <div class="list-section">
       <div class="glass-card list-card">
         <div class="card-header">
-          <h2><i class="fas fa-list-check"></i> Your Tasks</h2>
-          <div class="task-stats">
-            <span class="task-count">{{ tasks.length }} task{{ tasks.length !== 1 ? 's' : '' }}</span>
-            <span class="completion-rate" *ngIf="tasks.length > 0">
-              {{ getCompletionRate() }}% complete
-            </span>
-          </div>
+          <h2><fa-icon [icon]="faList"></fa-icon> All Tasks</h2>
+          <div class="header-decoration"></div>
         </div>
-
-        <!-- Filter and Sort Controls -->
-        <div class="controls-bar" *ngIf="tasks.length > 0">
-          <div class="filter-group">
-            <button 
-              class="filter-btn"
-              [class.active]="currentFilter === 'all'"
-              (click)="setFilter('all')">
-              All
-            </button>
-            <button 
-              class="filter-btn"
-              [class.active]="currentFilter === 'pending'"
-              (click)="setFilter('pending')">
-              Pending
-            </button>
-            <button 
-              class="filter-btn"
-              [class.active]="currentFilter === 'completed'"
-              (click)="setFilter('completed')">
-              Completed
-            </button>
-          </div>
-          <div class="sort-group">
-            <select class="sort-select" [(ngModel)]="sortBy" (change)="sortTasks()">
-              <option value="date">Sort by Date</option>
-              <option value="title">Sort by Title</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Tasks List -->
         <div class="tasks-container">
-          <div class="task-item" 
-               *ngFor="let task of getFilteredTasks(); let i = index; trackBy: trackByTask"
+          <div *ngIf="getFilteredTasks().length === 0" class="empty-state">
+            <div class="empty-icon">🗒️</div>
+            <div class="empty-title">{{ getEmptyStateTitle() }}</div>
+            <div class="empty-message">{{ getEmptyStateMessage() }}</div>
+          </div>
+          <div *ngFor="let task of getFilteredTasks(); trackBy: trackByTask" 
+               class="task-item" 
                [class.completed]="task.completed"
                [@taskAnimation]>
-            
-            <div class="task-checkbox">
-              <input 
-                type="checkbox" 
-                [id]="'task-' + i"
-                [checked]="task.completed"
-                (change)="toggleTask(getOriginalIndex(task))">
-              <label [for]="'task-' + i" class="checkbox-label">
-                <i class="fas fa-check"></i>
-              </label>
-            </div>
-
             <div class="task-content">
               <div class="task-header">
-                <h3 class="task-title">{{ task.title }}</h3>
-                <div class="task-meta">
-                  <span class="day-badge">{{ task.day }}</span>
-                </div>
+                <span class="task-title">{{ task.title }}</span>
+                <span class="day-badge">{{ task.day }}</span>
+                <span *ngIf="task.completed" class="task-status"><fa-icon [icon]="faCheckCircle"></fa-icon></span>
               </div>
-              
-              <p class="task-description">{{ task.description }}</p>
-              
+              <div class="task-description">{{ task.description }}</div>
               <div class="task-details">
-                <div class="detail-item">
-                  <i class="fas fa-calendar"></i>
-                  {{ task.date | date:'mediumDate' }}
-                </div>
-                <div class="detail-item">
-                  <i class="fas fa-clock"></i>
-                  {{ task.startTime }} - {{ task.endTime }}
-                </div>
-                <div class="detail-item duration">
-                  <i class="fas fa-hourglass-half"></i>
-                  {{ calculateDuration(task.startTime, task.endTime) }}
-                </div>
+                <span class="detail-item">
+                  <fa-icon [icon]="faCalendarAlt"></fa-icon> {{ task.date }}
+                </span>
+                <span class="detail-item">
+                  <fa-icon [icon]="faClock"></fa-icon> {{ task.startTime }} - {{ task.endTime }}
+                </span>
+                <span class="detail-item duration">
+                  <fa-icon [icon]="faClock"></fa-icon> {{ calculateDuration(task.startTime, task.endTime) }}
+                </span>
               </div>
             </div>
-
             <div class="task-actions">
-              <button 
-                class="action-btn complete-btn"
-                (click)="toggleTask(getOriginalIndex(task))"
-                [class.completed]="task.completed"
-                title="Toggle Complete">
-                <i class="fas" [class.fa-check-circle]="task.completed" [class.fa-circle]="!task.completed"></i>
+              <button class="action-btn complete-btn" 
+                      [class.completed]="task.completed"
+                      (click)="toggleTask(getOriginalIndex(task))"
+                      [title]="task.completed ? 'Mark as Pending' : 'Mark as Completed'">
+                <fa-icon [icon]="faCheckCircle"></fa-icon>
               </button>
-              <button 
-                class="action-btn edit-btn"
-                (click)="editTask(getOriginalIndex(task))"
-                title="Edit Task">
-                <i class="fas fa-edit"></i>
+              <button class="action-btn edit-btn" 
+                      (click)="editTask(getOriginalIndex(task))"
+                      title="Edit Task">
+                <fa-icon [icon]="faEdit"></fa-icon>
               </button>
-              <button 
-                class="action-btn delete-btn"
-                (click)="deleteTask(task)"
-                title="Delete Task">
+              <button class="action-btn delete-btn" 
+                      (click)="deleteTask(task)"
+                      title="Delete Task">
                 <fa-icon [icon]="faTrashAlt"></fa-icon>
               </button>
             </div>
           </div>
-
-          <!-- Empty State -->
-          <div class="empty-state" *ngIf="getFilteredTasks().length === 0">
-            <div class="empty-icon">
-              <i class="fas fa-clipboard-list"></i>
-            </div>
-            <h3>{{ getEmptyStateTitle() }}</h3>
-            <p>{{ getEmptyStateMessage() }}</p>
-          </div>
         </div>
       </div>
     </div>
+    <!-- End Task List Section -->
   </div>
-
+  
   <!-- Success Message -->
   <div class="toast" [class.show]="showToast" [@slideUp]>
     <div class="toast-content">

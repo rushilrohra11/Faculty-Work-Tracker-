@@ -50,15 +50,24 @@
 
     <!-- Auth Section -->
     <div class="auth-section">
-      <a routerLink="/loginAs" class="auth-btn login-btn">
-        <span class="auth-icon">🔐</span>
-        <span class="auth-text">Login</span>
-      </a>
-      <a routerLink="/register" class="auth-btn register-btn">
-        <span class="auth-icon">✨</span>
-        <span class="auth-text">Sign Up</span>
-      </a>
+      <ng-container *ngIf="!isLoggedIn; else loggedInBlock">
+        <a routerLink="/loginAs" class="auth-btn login-btn">
+          <span class="auth-icon">🔐</span>
+          <span class="auth-text">Login</span>
+        </a>
+        <a routerLink="/register" class="auth-btn register-btn">
+          <span class="auth-icon">✨</span>
+          <span class="auth-text">Sign Up</span>
+        </a>
+      </ng-container>
+      <ng-template #loggedInBlock>
+        <button class="auth-btn register-btn" (click)="logout()">
+          <span class="auth-icon">🚪</span>
+          <span class="auth-text">Logout ({{ userRole }})</span>
+        </button>
+      </ng-template>
     </div>
+    <!-- ...existing code... -->
         
     <!-- Mobile Menu Toggle -->
     <div class="hamburger" (click)="toggleMenu()" [class.active]="isMenuOpen">

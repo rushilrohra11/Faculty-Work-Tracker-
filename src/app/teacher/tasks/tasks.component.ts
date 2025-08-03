@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { faList } from '@fortawesome/free-solid-svg-icons';
+
 import { 
   faCalendarAlt,
   faClock, 
@@ -93,6 +95,7 @@ export class TasksComponent implements OnInit {
   protected faAdd = faAdd;
   protected faExclamationCircle = faExclamationCircle;
   protected faTimes = faTimes;
+  protected faList = faList;
 
   taskForm: FormGroup;
   tasks: Task[] = [];
