@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FooterComponent } from './footer/footer.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NavbarComponent } from './navbar/navbar.component';
-import { RouterModule } from '@angular/router';
+import { RouterLink, RouterModule } from '@angular/router';
+import { AuthModule } from '../auth/auth.module';
 
 
 
@@ -16,7 +17,9 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
+    RouterLink,
+    AuthModule
   ],
   exports:[
     FooterComponent,

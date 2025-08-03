@@ -21,6 +21,11 @@ import { LoginAsComponent } from './login-as/login-as.component';
     NgbModule,
     FontAwesomeModule,
     RouterModule
+  ],
+  exports: [
+    LoginComponent,
+    RegisterComponent,
+    LoginAsComponent
   ]
 })
 export class AuthModule { }

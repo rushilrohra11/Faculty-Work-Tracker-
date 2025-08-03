@@ -20,8 +20,6 @@ import { HomeComponent } from './home/home.component';
 @NgModule({
   declarations: [
     AppComponent,
-    AddTeacherComponent,
-    AddSubjectComponent,
     TeacherLoginComponent,
     DashboardComponent,
     TeacherWeeklySummaryComponent,

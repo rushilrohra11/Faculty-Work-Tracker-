@@ -1,4 +1,3 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { Component, Input, OnInit, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
 import { Teacher } from '../interfaces/teacher.interface';
 import { DatabaseService } from '../services/database.service';
