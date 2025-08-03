@@ -15,6 +15,9 @@ import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.compon
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-weekly-summary.component';
 import { SharedModule } from './shared/shared.module';
+import { ResearchAssistantComponent } from './research-assistant/research-assistant.component';
+import { SanitizeHtmlPipe } from './sanitize-html.pipe';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -23,7 +26,9 @@ import { SharedModule } from './shared/shared.module';
     AddSubjectComponent,
     TeacherLoginComponent,
     DashboardComponent,
-    TeacherWeeklySummaryComponent
+    TeacherWeeklySummaryComponent,
+    ResearchAssistantComponent,
+    SanitizeHtmlPipe
   ],
   imports: [
     BrowserModule,
@@ -38,7 +43,8 @@ import { SharedModule } from './shared/shared.module';
     AuthModule,
     NgbModule,
     ProfileSettingsModule,
-    SharedModule
+    SharedModule,
+    HttpClientModule
     
   ],
   providers: [],
