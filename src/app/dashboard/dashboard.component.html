@@ -1,13 +1,98 @@
-<div *ngIf="!selectedTeacher">
-  <h2>Teachers</h2>
-  <ul>
-    <li *ngFor="let teacher of teachers" (click)="selectTeacher(teacher)">
-      {{ teacher.name }} ({{ teacher.email }})
-    </li>
-  </ul>
-</div>
+<div class="container">
+  <div class="header">
+    <h1>{{ selectedTeacher ? selectedTeacher.name + ' - Weekly Summary' : 'Teacher Dashboard' }}</h1>
+    <p>{{ selectedTeacher ? 'Detailed Schedule & Earnings Overview' : 'Current Week Lecture Overview' }}</p>
+  </div>
 
-<div *ngIf="selectedTeacher">
-  <button (click)="clearSelection()">Back to Teachers</button>
-  <app-teacher-weekly-summary [teacher]="selectedTeacher"></app-teacher-weekly-summary>
+  <button 
+    *ngIf="selectedTeacher" 
+    class="back-button" 
+    (click)="clearSelection()">
+    ← Back to Teachers
+  </button>
+
+  <div class="dashboard-content">
+    <!-- Teachers List View -->
+    <div *ngIf="!selectedTeacher">
+      <div class="current-week-header">
+        <h2>This Week's Schedule</h2>
+        <p>{{ currentWeekRange }}</p>
+      </div>
+
+      <div class="teachers-grid" *ngIf="teachers.length > 0">
+        <div class="teacher-card" *ngFor="let teacher of teachers">
+          <div class="teacher-header" (click)="selectTeacher(teacher)">
+            <div class="teacher-name">{{ teacher.name }}</div>
+            <div class="teacher-email">{{ teacher.email }}</div>
+          </div>
+          
+          <div class="teacher-stats">
+            <div class="stat-item">
+              <span class="stat-number">{{ getCurrentWeekTasks(teacher).length }}</span>
+              <span class="stat-label">Lectures</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ getTotalWeeklyHours(teacher) | number:'1.1-1' }}</span>
+              <span class="stat-label">Hours</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">₹{{ getWeeklyEarnings(teacher) | number:'1.0-0' }}</span>
+              <span class="stat-label">Earnings</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ getTotalSubjects(teacher) }}</span>
+              <span class="stat-label">Subjects</span>
+            </div>
+          </div>
+          
+          <div class="lectures-section">
+            <div class="section-title">This Week's Lectures</div>
+            
+            <div *ngIf="getCurrentWeekTasks(teacher).length > 0; else noLectures">
+              <div class="lecture-item" *ngFor="let task of getCurrentWeekTasks(teacher)">
+                <div class="lecture-info">
+                  <div class="lecture-subject">{{ task.subjectName || task.title || 'General' }}</div>
+                  <div class="lecture-time">
+                    {{ formatTime(task.startTime) }} - {{ formatTime(task.endTime) }}
+                  </div>
+                </div>
+                <div class="lecture-day">{{ getDayName(task.date) }}</div>
+                <div class="lecture-duration">
+                  {{ calculateTaskHours(task.startTime, task.endTime) | number:'1.1-1' }}h
+                </div>
+              </div>
+              
+              <div class="total-hours">
+                <div class="total-hours-value">
+                  {{ getTotalWeeklyHours(teacher) | number:'1.1-1' }} hours
+                </div>
+                <div class="total-hours-label">
+                  Total Weekly Hours (₹{{ getWeeklyEarnings(teacher) | number:'1.0-0' }})
+                </div>
+              </div>
+            </div>
+            
+            <ng-template #noLectures>
+              <div class="no-lectures">
+                <div class="no-lectures-icon">📅</div>
+                <p>No lectures scheduled this week</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="teachers.length === 0" class="empty-state">
+        <div class="empty-icon">👨‍🏫</div>
+        <h3>No Teachers Found</h3>
+        <p>No teachers are currently registered in the system.</p>
+      </div>
+    </div>
+
+    <!-- Teacher Detail View -->
+    <div *ngIf="selectedTeacher">
+      <app-teacher-weekly-summary [teacher]="selectedTeacher"></app-teacher-weekly-summary>
+    </div>
+  </div>
 </div>

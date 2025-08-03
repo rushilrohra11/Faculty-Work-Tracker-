@@ -8,4 +8,5 @@ export interface Task {
   endTime: string;
   completed: boolean;
   createdAt: Date;
+    subjectName?: string; // Optional field to link task to a subject
 }

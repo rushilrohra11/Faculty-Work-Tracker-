@@ -7,7 +7,6 @@ import { RegisterComponent } from './auth/register/register.component';
 import { AddSubjectComponent } from './profile-settings/add-subject/add-subject.component';
 import { AddTeacherComponent } from './profile-settings/add-teacher/add-teacher.component';
 import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component';
-import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component'; 
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-weekly-summary.component';
 
