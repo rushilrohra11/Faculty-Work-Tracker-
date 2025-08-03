@@ -1,8 +1,155 @@
-<h3>Weekly Summary for {{ teacher.name }}</h3>
-<ul>
-  <li *ngFor="let task of weeklyTasks">
-    <b>{{ task.day }}:</b> {{ task.title }} ({{ task.startTime }} - {{ task.endTime }})
-  </li>
-</ul>
-<p><b>Total Hours:</b> {{ totalHours | number:'1.2-2' }}</p>
-<p><b>Estimated Salary:</b> ₹{{ totalSalary | number:'1.2-2' }}</p>
+<div class="container">
+  <div class="header">
+    <h1>{{ teacher.name }} - Weekly Summary</h1>
+    <p>Teaching Schedule & Earnings Overview</p>
+  </div>
+
+  <div class="weekly-summary-header">
+    <button class="nav-button" (click)="prevWeek()" [disabled]="isLoading">
+      ← Previous Week
+    </button>
+    <div class="week-display">
+      <span>{{ getWeekRange() }}</span>
+      <span class="week-range">Week {{ getWeekNumber() }} of {{ weekStart | date:'yyyy' }}</span>
+    </div>
+    <button class="nav-button" (click)="nextWeek()" [disabled]="isLoading">
+      Next Week →
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading weekly summary...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="content">
+    <!-- Statistics Cards -->
+    <div class="stats-cards">
+      <div class="stat-card">
+        <h3>{{ totalLectures }}</h3>
+        <p>Total Lectures</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{ totalHours | number:'1.1-1' }}</h3>
+        <p>Total Hours</p>
+      </div>
+      <div class="stat-card">
+        <h3>₹{{ totalSalary | number:'1.0-0' }}</h3>
+        <p>Weekly Salary</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{ getAverageHours() | number:'1.1-1' }}</h3>
+        <p>Avg Hours/Day</p>
+      </div>
+    </div>
+
+    <!-- Weekly Table -->
+    <div class="table-container">
+      <table class="weekly-table">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Date</th>
+            <th>Lectures</th>
+            <th>Hours</th>
+            <th>Earnings</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let day of dailySummary" 
+              [class.today-row]="isToday(day.date)"
+              [class.no-lectures-row]="day.lectures === 0">
+            <td class="day-name">{{ day.day }}</td>
+            <td class="date-cell">{{ day.date | date:'MMM d, yyyy' }}</td>
+            <td class="lectures-cell">
+              <span class="badge" 
+                    [class.badge-lectures]="day.lectures > 0"
+                    [class.badge-zero]="day.lectures === 0">
+                {{ day.lectures }}
+              </span>
+            </td>
+            <td class="hours-cell" [class.zero-hours]="day.hours === 0">
+              {{ day.hours | number:'1.1-1' }}
+            </td>
+            <td class="earnings-cell">
+              <span [class.zero-earnings]="day.earnings === 0">
+                ₹{{ day.earnings | number:'1.0-0' }}
+              </span>
+            </td>
+            <td class="status-cell">
+              <span class="status-badge" 
+                    [class.status-rest]="getDayStatus(day) === 'Rest Day'"
+                    [class.status-light]="getDayStatus(day) === 'Light'"
+                    [class.status-moderate]="getDayStatus(day) === 'Moderate'"
+                    [class.status-heavy]="getDayStatus(day) === 'Heavy'">
+                {{ getDayStatus(day) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="2"><strong>Weekly Total</strong></td>
+            <td class="lectures-cell"><strong>{{ totalLectures }}</strong></td>
+            <td class="hours-cell"><strong>{{ totalHours | number:'1.1-1' }}</strong></td>
+            <td class="earnings-cell"><strong>₹{{ totalSalary | number:'1.0-0' }}</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Daily Details Section -->
+    <div class="daily-details" *ngIf="dailySummary.length > 0">
+      <h3>Daily Lecture Details</h3>
+      <div class="daily-cards">
+        <div class="daily-card" *ngFor="let day of dailySummary" 
+             [class.today-card]="isToday(day.date)">
+          <div class="daily-card-header">
+            <h4>{{ day.day }}, {{ day.date | date:'MMM d' }}</h4>
+            <span class="daily-stats">{{ day.lectures }} lectures, {{ day.hours | number:'1.1-1' }}h</span>
+          </div>
+          
+          <div class="daily-card-content" *ngIf="day.tasks.length > 0; else noDailyTasks">
+            <div class="lecture-detail" *ngFor="let task of day.tasks">
+              <div class="lecture-info">
+                <div class="lecture-title">{{ task.title || task.subjectName || 'Lecture' }}</div>
+                <div class="lecture-subject" *ngIf="task.subjectName">{{ task.subjectName }}</div>
+                <div class="lecture-description" *ngIf="task.description">{{ task.description }}</div>
+              </div>
+              <div class="lecture-timing">
+                <div class="time-slot">{{ formatTime(task.startTime) }} - {{ formatTime(task.endTime) }}</div>
+                <div class="duration">{{ calculateTaskHours(task.startTime, task.endTime) | number:'1.1-1' }}h</div>
+              </div>
+            </div>
+          </div>
+          
+          <ng-template #noDailyTasks>
+            <div class="no-daily-tasks">
+              <p>No lectures scheduled</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="totalLectures === 0" class="empty-week-state">
+      <div class="empty-icon">📅</div>
+      <h3>No Lectures This Week</h3>
+      <p>{{ teacher.name }} has no scheduled lectures for the week of {{ getWeekRange() }}</p>
+      
+      <!-- Debug section - remove in production -->
+      <div class="debug-section">
+        <button (click)="debugTeacherData()" class="debug-button">
+          Debug Data
+        </button>
+        <button (click)="refreshData()" class="debug-button">
+          Refresh Data
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

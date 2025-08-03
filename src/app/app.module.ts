@@ -18,17 +18,17 @@ import { SharedModule } from './shared/shared.module';
 import { ResearchAssistantComponent } from './research-assistant/research-assistant.component';
 import { SanitizeHtmlPipe } from './sanitize-html.pipe';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AddTeacherComponent,
-    AddSubjectComponent,
     TeacherLoginComponent,
     DashboardComponent,
     TeacherWeeklySummaryComponent,
     ResearchAssistantComponent,
-    SanitizeHtmlPipe
+    SanitizeHtmlPipe,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

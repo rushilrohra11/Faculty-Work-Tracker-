@@ -10,10 +10,12 @@ import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.compon
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { TeacherWeeklySummaryComponent } from './teacher-weekly-summary/teacher-weekly-summary.component';
 import { ResearchAssistantComponent } from './research-assistant/research-assistant.component';
+import { SettingsComponent } from './profile-settings/settings/settings.component';
+import { LoginAsComponent } from './auth/login-as/login-as.component';
+import { HomeComponent } from './home/home.component';
 
 const routes: Routes = [
   // Default route - redirect to tasks
-  { path: '', redirectTo: '/tasks', pathMatch: 'full' },
   
   // Main application routes
   {
@@ -41,8 +43,20 @@ const routes: Routes = [
     component: DashboardComponent
   },
   {
+    path: 'home',
+    component: HomeComponent
+  },
+  {
+   path: 'settings',
+   component:  SettingsComponent
+  },
+  {
     path: 'teacher-weekly-summary',
     component: TeacherWeeklySummaryComponent
+  },
+  {
+    path: 'loginAs',
+    component: LoginAsComponent
   },
   { path: 'tasks', component: TasksComponent },
   {
@@ -58,9 +72,9 @@ const routes: Routes = [
   // Profile settings routes
   { path: 'addSubject', component: AddSubjectComponent },
   { path: 'addTeacher', component: AddTeacherComponent },
-  
+    { path: '', redirectTo: '/home', pathMatch: 'full' },
+
   // Wildcard route - must be last
-  { path: '**', redirectTo: '/tasks' }
 ];
 
 @NgModule({

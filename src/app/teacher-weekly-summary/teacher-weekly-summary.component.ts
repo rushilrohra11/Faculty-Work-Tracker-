@@ -1,17 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
 import { Teacher } from '../interfaces/teacher.interface';
 import { DatabaseService } from '../services/database.service';
+import { Task } from '../interfaces/task.interface';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
+
+
+interface DailySummary {
   day: string;
-  startTime: string;
-  endTime: string;
-  completed: boolean;
-  createdAt: Date;
+  date: string;
+  lectures: number;
+  hours: number;
+  earnings: number;
+  tasks: Task[];
 }
 
 @Component({
@@ -19,11 +19,21 @@ interface Task {
   templateUrl: './teacher-weekly-summary.component.html',
   styleUrls: ['./teacher-weekly-summary.component.css']
 })
-export class TeacherWeeklySummaryComponent {
+export class TeacherWeeklySummaryComponent implements OnInit {
   @Input() teacher!: Teacher;
-  weeklyTasks: Task[] = [];
+  
+  weekStart: Date = this.getWeekStart(new Date());
+  daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  dailySummary: DailySummary[] = [];
   totalHours = 0;
   totalSalary = 0;
+  totalLectures = 0;
+  
+  // Loading state
+  isLoading = false;
+  
+  // Current teacher data from localStorage
+  currentTeacherData: Teacher | null = null;
 
   constructor(private database: DatabaseService) {}
 
@@ -31,32 +41,105 @@ export class TeacherWeeklySummaryComponent {
     this.loadWeeklySummary();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['teacher'] && !changes['teacher'].firstChange) {
+      this.loadWeeklySummary();
+    }
+  }
+
+  prevWeek(): void {
+    this.weekStart = new Date(this.weekStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+    this.loadWeeklySummary();
+  }
+
+  nextWeek(): void {
+    this.weekStart = new Date(this.weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+    this.loadWeeklySummary();
+  }
+
   loadWeeklySummary(): void {
-    const allTasks = this.database.getTasksForTeacher(this.teacher.email);
-    const weekStart = this.getWeekStart(new Date());
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 7);
+    if (!this.teacher?.email) {
+      console.error('No teacher email provided');
+      return;
+    }
 
-    // Filter tasks for this week
-    this.weeklyTasks = allTasks.filter(task => {
-      const taskDate = new Date(task.date);
-      return taskDate >= weekStart && taskDate < weekEnd;
-    });
+    this.isLoading = true;
+    
+    try {
+      // Load fresh data from localStorage
+      this.database.loadData();
+      
+      // Get updated teacher data
+      this.currentTeacherData = this.database.getTeachers()
+        .find(t => t.email === this.teacher.email) || this.teacher;
+      
+      // Get all tasks for this teacher from localStorage
+      const allTasks = this.database.getTasksForTeacher(this.teacher.email);
+      
+      console.log(`Loading weekly summary for ${this.teacher.name}:`, {
+        email: this.teacher.email,
+        totalTasks: allTasks.length,
+        weekStart: this.weekStart.toISOString().slice(0, 10)
+      });
 
-    // Calculate total hours and salary
-    this.totalHours = 0;
-    this.totalSalary = 0;
-    for (const task of this.weeklyTasks) {
-      const hours = this.calculateTaskHours(task.startTime, task.endTime);
-      this.totalHours += hours;
+      this.dailySummary = [];
+      this.totalHours = 0;
+      this.totalSalary = 0;
+      this.totalLectures = 0;
 
-      // Find payPerHour for the subject (if available)
-      let payPerHour = 0;
-      if (this.teacher.subjects && this.teacher.subjects.length > 0) {
-        // If you store subjectName in task, you can match here
-        payPerHour = this.teacher.subjects[0].payPerHour; // Simplified: use first subject
+      for (let i = 0; i < 7; i++) {
+        const dayDate = new Date(this.weekStart);
+        dayDate.setDate(this.weekStart.getDate() + i);
+        const dayStr = dayDate.toISOString().slice(0, 10);
+
+        const tasksForDay = allTasks.filter(task => task.date === dayStr);
+
+        let hours = 0;
+        let daySalary = 0;
+        
+        for (const task of tasksForDay) {
+          const taskHours = this.calculateTaskHours(task.startTime, task.endTime);
+          hours += taskHours;
+
+          // Find payPerHour for this task's subject from current teacher data
+          let payPerHour = 0;
+          if (task.subjectName && this.currentTeacherData?.subjects) {
+            const subj = this.currentTeacherData.subjects.find(s => s.subjectName === task.subjectName);
+            payPerHour = subj ? subj.payPerHour : 0;
+          } else if (this.currentTeacherData?.subjects && this.currentTeacherData.subjects.length > 0) {
+            payPerHour = this.currentTeacherData.subjects[0].payPerHour; // fallback
+          }
+          
+          daySalary += taskHours * payPerHour;
+        }
+
+        const dailyData: DailySummary = {
+          day: this.daysOfWeek[i],
+          date: dayStr,
+          lectures: tasksForDay.length,
+          hours: hours,
+          earnings: daySalary,
+          tasks: tasksForDay
+        };
+
+        this.dailySummary.push(dailyData);
+
+        this.totalSalary += daySalary;
+        this.totalHours += hours;
+        this.totalLectures += tasksForDay.length;
       }
-      this.totalSalary += hours * payPerHour;
+
+      console.log('Weekly summary loaded:', {
+        totalLectures: this.totalLectures,
+        totalHours: this.totalHours,
+        totalSalary: this.totalSalary,
+        dailySummary: this.dailySummary
+      });
+
+    } catch (error) {
+      console.error('Error loading weekly summary:', error);
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -73,4 +156,78 @@ export class TeacherWeeklySummaryComponent {
     return (eh + em / 60) - (sh + sm / 60);
   }
 
+  // Helper methods for template
+  getWeekEndDate(): Date {
+    const weekEnd = new Date(this.weekStart);
+    weekEnd.setDate(this.weekStart.getDate() + 6);
+    return weekEnd;
+  }
+
+  getWeekRange(): string {
+    const weekEnd = this.getWeekEndDate();
+    const options: Intl.DateTimeFormatOptions = { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    };
+    return `${this.weekStart.toLocaleDateString('en-US', options)} - ${weekEnd.toLocaleDateString('en-US', options)}`;
+  }
+
+  getWeekNumber(): number {
+    const firstDayOfYear = new Date(this.weekStart.getFullYear(), 0, 1);
+    const pastDaysOfYear = (this.weekStart.getTime() - firstDayOfYear.getTime()) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  }
+
+  getAverageHours(): number {
+    return this.totalHours / 7;
+  }
+
+  // Method to refresh data manually
+  refreshData(): void {
+    this.loadWeeklySummary();
+  }
+
+  // Method to get task details for a specific day
+  getTasksForDay(dayData: DailySummary): Task[] {
+    return dayData.tasks || [];
+  }
+
+  // Method to format time for display
+  formatTime(time: string): string {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  }
+
+  // Method to get day status
+  getDayStatus(dayData: DailySummary): string {
+    if (dayData.lectures === 0) return 'Rest Day';
+    if (dayData.hours > 6) return 'Heavy';
+    if (dayData.hours > 4) return 'Moderate';
+    return 'Light';
+  }
+
+  // Method to check if it's today
+  isToday(dateStr: string): boolean {
+    const today = new Date().toISOString().slice(0, 10);
+    return dateStr === today;
+  }
+
+  // Debug method
+  debugTeacherData(): void {
+    console.log('=== DEBUG: Teacher Weekly Summary ===');
+    console.log('Input teacher:', this.teacher);
+    console.log('Current teacher data from DB:', this.currentTeacherData);
+    console.log('Week start:', this.weekStart);
+    console.log('Week range:', this.getWeekRange());
+    console.log('Daily summary:', this.dailySummary);
+    console.log('Total stats:', {
+      lectures: this.totalLectures,
+      hours: this.totalHours,
+      salary: this.totalSalary
+    });
+}
 }

@@ -1,0 +1,312 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 300;
+}
+
+.header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.back-button {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px;
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+}
+
+.dashboard-content {
+  padding: 30px;
+}
+
+.current-week-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+}
+
+.current-week-header h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.current-week-header p {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.teachers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: 25px;
+}
+
+.teacher-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.teacher-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.15);
+}
+
+.teacher-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.teacher-header:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.teacher-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.teacher-email {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.teacher-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #667eea;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.lectures-section {
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: "📅";
+  font-size: 1.2rem;
+}
+
+.lecture-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.lecture-item:hover {
+  background: #e3f2fd;
+  transform: translateX(5px);
+}
+
+.lecture-info {
+  flex-grow: 1;
+}
+
+.lecture-subject {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.lecture-time {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+.lecture-day {
+  font-size: 0.8rem;
+  color: #667eea;
+  font-weight: 500;
+  margin-right: 10px;
+}
+
+.lecture-duration {
+  background: #667eea;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.no-lectures {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+}
+
+.no-lectures-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.total-hours {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.total-hours-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.total-hours-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.empty-state h3 {
+  margin-bottom: 15px;
+  color: #495057;
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+@media (max-width: 768px) {
+  .teachers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+
+  .stat-number {
+    font-size: 1.1rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .dashboard-content {
+    padding: 20px;
+  }
+
+  .lecture-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .lecture-day,
+  .lecture-duration {
+    align-self: flex-end;
+  }
+}

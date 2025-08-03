@@ -1,0 +1,64 @@
+.login-as-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  background: #f5f7fa;
+}
+
+.login-as-card {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.login-as-card h2 {
+  margin-bottom: 1.5rem;
+  color: #2d3a4b;
+  font-weight: 600;
+}
+
+.login-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+}
+
+.login-btn.teacher {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.login-btn.teacher:hover {
+  background: #bbdefb;
+}
+
+.login-btn.admin {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.login-btn.admin:hover {
+  background: #ffe0b2;
+}
+
+.icon {
+  font-size: 1.5rem;
+}
