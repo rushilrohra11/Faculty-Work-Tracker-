@@ -12,13 +12,15 @@ import { ProfileSettingsModule } from './profile-settings/profile-settings.modul
 import { AddTeacherComponent } from './profile-settings/add-teacher/add-teacher.component';
 import { AddSubjectComponent } from './profile-settings/add-subject/add-subject.component';
 import { TeacherLoginComponent } from './auth/teacher-login/teacher-login.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AddTeacherComponent,
     AddSubjectComponent,
-    TeacherLoginComponent
+    TeacherLoginComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
